@@ -1,13 +1,28 @@
-image: hashicorp/terraform:latest
-
 stages:
-  - deploy
+  - plan
+  - apply
+
+variables:
+  TF_IN_AUTOMATION: "true"
 
 before_script:
   - terraform --version
-  - terraform init
 
-deploy:
-  stage: deploy
+plan:
+  stage: plan
+  image: hashicorp/terraform:latest
   script:
+    - terraform init
+    - terraform plan
+  artifacts:
+    paths:
+      - terraform.tfplan
+
+apply:
+  stage: apply
+  image: hashicorp/terraform:latest
+  script:
+    - terraform init
     - terraform apply -auto-approve
+  dependencies:
+    - plan
